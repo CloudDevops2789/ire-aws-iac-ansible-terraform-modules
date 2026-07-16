@@ -1,0 +1,24 @@
+---
+# ==========================================================
+# S3 Bucket Configuration
+# ==========================================================
+
+bucket_name: ""
+
+bucket_region: "us-east-1"
+
+bucket_state: present
+
+bucket_versioning: true
+
+bucket_object_lock: true
+
+bucket_force_destroy: false
+
+bucket_encryption: AES256
+
+bucket_kms_key_id: ""
+
+bucket_public_access_block: true
+
+bucket_tags: {}

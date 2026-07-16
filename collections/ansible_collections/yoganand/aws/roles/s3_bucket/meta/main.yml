@@ -1,0 +1,10 @@
+---
+galaxy_info:
+  author: Yoganand
+  description: Enterprise reusable S3 bucket role
+  company: Home Lab
+  license: MIT
+
+  min_ansible_version: "2.16"
+
+dependencies: []

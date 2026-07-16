@@ -1,0 +1,24 @@
+---
+- name: Create Terraform Backend Bucket
+  hosts: localhost
+  gather_facts: false
+
+  vars:
+
+    role_arn: arn:aws:iam::781436988948:role/fhs-main-test-ire-redhataap-role
+
+    application_name: terraform
+
+    aws_region: us-east-1
+
+    bucket_name: yoganand-terraform-state-781436988948
+
+    bucket_region: us-east-1
+
+    bucket_object_lock: true
+
+  roles:
+
+    - yoganand.aws.assume_role
+
+    - yoganand.aws.s3_bucket
