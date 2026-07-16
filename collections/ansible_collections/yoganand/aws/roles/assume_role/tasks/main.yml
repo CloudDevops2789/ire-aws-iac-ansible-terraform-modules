@@ -71,4 +71,4 @@
 
 - name: Display assumed role
   ansible.builtin.debug:
-    var: caller_identity.arn
+    msg: "Successfully assumed {{ caller_identity.arn }}"
