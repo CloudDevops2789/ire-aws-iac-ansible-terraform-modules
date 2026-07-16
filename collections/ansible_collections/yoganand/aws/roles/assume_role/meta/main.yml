@@ -1,0 +1,10 @@
+---
+galaxy_info:
+  author: Yoganand
+  description: Assume AWS IAM Role and expose temporary credentials.
+  company: Fairview
+  license: MIT
+
+  min_ansible_version: "2.16"
+
+dependencies: []

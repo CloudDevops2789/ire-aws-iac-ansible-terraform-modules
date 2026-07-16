@@ -1,0 +1,74 @@
+---
+- name: Validate assume-role inputs
+  ansible.builtin.assert:
+    that:
+      - role_arn | length > 0
+      - aws_region | length > 0
+    fail_msg: "role_arn and aws_region are required."
+
+- name: Build role session name
+  ansible.builtin.set_fact:
+    generated_role_session_name: >-
+      {{
+      (
+      application_name
+      | default('recovery')
+      | lower
+      | regex_replace('[^a-z0-9+=,.@-]', '-')
+      )[:24]
+      }}
+      -job-{{
+      tower_job_id
+      | default(
+      awx_job_id
+      | default('unknown')
+      )
+      }}
+      -{{
+      lookup('pipe','date +%Y%m%d-%H%M%S')
+      }}
+
+- name: Assume role
+  amazon.aws.sts_assume_role:
+    role_arn: "{{ role_arn }}"
+    role_session_name: "{{ generated_role_session_name }}"
+    region: "{{ aws_region }}"
+    external_id: "{{ role_external_id | default(omit,true) }}"
+    duration_seconds: "{{ role_session_duration_seconds | default(omit,true) }}"
+  register: aws_assume_role_result
+  changed_when: false
+
+- name: Validate response
+  ansible.builtin.assert:
+    that:
+      - aws_assume_role_result.sts_creds is defined
+      - aws_assume_role_result.sts_creds.access_key is defined
+      - aws_assume_role_result.sts_creds.secret_key is defined
+      - aws_assume_role_result.sts_creds.session_token is defined
+      - aws_assume_role_result.sts_user.arn is defined
+
+- name: Store credentials
+  ansible.builtin.set_fact:
+    aws_access_key_id: "{{ aws_assume_role_result.sts_creds.access_key }}"
+    aws_secret_access_key: "{{ aws_assume_role_result.sts_creds.secret_key }}"
+    aws_session_token: "{{ aws_assume_role_result.sts_creds.session_token }}"
+    aws_role_expiration: "{{ aws_assume_role_result.sts_creds.expiration }}"
+    aws_assumed_role_arn: "{{ aws_assume_role_result.sts_user.arn }}"
+    aws_auth:
+      access_key: "{{ aws_assume_role_result.sts_creds.access_key }}"
+      secret_key: "{{ aws_assume_role_result.sts_creds.secret_key }}"
+      session_token: "{{ aws_assume_role_result.sts_creds.session_token }}"
+      region: "{{ aws_region }}"
+
+- name: Verify assumed role
+  amazon.aws.aws_caller_info:
+    access_key: "{{ aws_access_key_id }}"
+    secret_key: "{{ aws_secret_access_key }}"
+    session_token: "{{ aws_session_token }}"
+    region: "{{ aws_region }}"
+  register: caller_identity
+  changed_when: false
+
+- name: Display assumed role
+  ansible.builtin.debug:
+    var: caller_identity.arn

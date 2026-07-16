@@ -1,0 +1,20 @@
+---
+# Bootstrap IAM role
+
+role_arn: ""
+
+# Optional
+
+role_external_id: ""
+
+# Optional
+
+role_session_duration_seconds: ""
+
+# Default region
+
+aws_region: us-east-1
+
+# Used in session name
+
+application_name: recovery
