@@ -28,15 +28,16 @@
       lookup('pipe','date +%Y%m%d-%H%M%S')
       }}
 
-- name: Assume role
+- name: Assume AWS IAM role
   amazon.aws.sts_assume_role:
     role_arn: "{{ role_arn }}"
-    role_session_name: "{{ generated_role_session_name }}"
-    region: "{{ aws_region }}"
-    external_id: "{{ role_external_id | default(omit,true) }}"
-    duration_seconds: "{{ role_session_duration_seconds | default(omit,true) }}"
+    role_session_name: "awx-test-session"
   register: aws_assume_role_result
   changed_when: false
+
+- name: Show AssumeRole result
+  ansible.builtin.debug:
+    var: aws_assume_role_result
 
 - name: Validate response
   ansible.builtin.assert:
