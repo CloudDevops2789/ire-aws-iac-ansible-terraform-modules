@@ -1,0 +1,13 @@
+---
+- name: Test Assume Role
+  hosts: localhost
+  connection: local
+  gather_facts: false
+
+  vars:
+    role_arn: arn:aws:iam::781436988948:role/fhs-main-test-ire-redhataap-role
+    aws_region: us-east-1
+    application_name: home-lab
+
+  roles:
+    - yoganand.aws.assume_role
