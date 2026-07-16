@@ -1,0 +1,22 @@
+---
+- name: Test AWS Credentials
+  hosts: localhost
+  gather_facts: false
+
+  tasks:
+
+    - name: Show AWS environment
+      ansible.builtin.shell: |
+        env | grep AWS || true
+      register: aws_env
+      changed_when: false
+
+    - debug:
+        var: aws_env.stdout_lines
+
+    - name: Get caller identity
+      amazon.aws.aws_caller_info:
+      register: caller
+
+    - debug:
+        var: caller
