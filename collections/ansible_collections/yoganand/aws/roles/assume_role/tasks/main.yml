@@ -9,29 +9,12 @@
 - name: Build role session name
   ansible.builtin.set_fact:
     generated_role_session_name: >-
-      {{
-      (
-      application_name
-      | default('recovery')
-      | lower
-      | regex_replace('[^a-z0-9+=,.@-]', '-')
-      )[:24]
-      }}
-      -job-{{
-      tower_job_id
-      | default(
-      awx_job_id
-      | default('unknown')
-      )
-      }}
-      -{{
-      lookup('pipe','date +%Y%m%d-%H%M%S')
-      }}
+      {{ (application_name | default('recovery') | lower | regex_replace('[^a-z0-9+=,.@-]', '-'))[:24] }}-job-{{ tower_job_id | default(awx_job_id | default('unknown')) }}-{{ lookup('pipe', 'date +%Y%m%d-%H%M%S') }}
 
 - name: Assume AWS IAM role
   amazon.aws.sts_assume_role:
     role_arn: "{{ role_arn }}"
-    role_session_name: "awx-test-session"
+    role_session_name: "{{ generated_role_session_name }}"
   register: aws_assume_role_result
   changed_when: false
 
