@@ -420,6 +420,10 @@ s3:PutBucketObjectLockConfiguration
 s3:GetBucketObjectLockConfiguration
 ```
 
+## Versioning
+Needs "s3:GetBucketVersioning",
+"s3:PutBucketVersioning"
+
 ---
 
 # Security Model

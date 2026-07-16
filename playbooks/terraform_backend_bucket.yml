@@ -17,6 +17,8 @@
 
     bucket_object_lock: true
 
+    bucket_versioning: true
+
   roles:
 
     - yoganand.aws.assume_role

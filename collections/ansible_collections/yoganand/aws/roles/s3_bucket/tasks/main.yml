@@ -29,7 +29,7 @@
 - name: Gather outputs
   ansible.builtin.include_tasks: outputs.yml
   when: bucket_state == "present"
-
+  
 - name: Destroy bucket
   ansible.builtin.include_tasks: destroy.yml
   when: bucket_state == "absent"
