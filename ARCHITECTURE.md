@@ -418,6 +418,89 @@ Business Access
 - Policy as Code
 - Continuous Security Validation
 
+**For Client VPN / Landing Zones , We have two proposed solutions**
+**Option 1 **- Client VPN in Core VPC (Simpler)
+
+<img width="752" height="257" alt="image" src="https://github.com/user-attachments/assets/99174a4d-2e08-4164-a7ec-f58afc9126df" />
+
+
+Internet
+    │
+AWS Client VPN
+    │
+Management Subnet
+(Core VPC)
+    │
+SSM
+    │
+Application Servers
+
+**Advantages**
+Simpler architecture
+Lower cost
+Fewer route tables
+Easier to manage
+
+**Disadvantages**
+VPN terminates inside the same VPC as workloads.
+Administrative entry point shares the same security boundary as applications.
+If the management subnet is compromised, the attacker is already inside the Core VPC.
+
+Option 2 - Dedicated Recovery Access VPC
+
+<img width="754" height="263" alt="image" src="https://github.com/user-attachments/assets/dd997da6-66a0-4046-b017-4005f85bea1a" />
+
+
+                    Internet
+                        │
+               AWS Client VPN
+                MFA + SAML/OIDC
+                        │
+             Recovery Access VPC
+             (Management Only)
+                        │
+             AWS Systems Manager
+             Bastion (Optional)
+             Jump Services
+             Logging
+                        │
+              Transit Gateway
+                        │
+      ┌─────────────────┴──────────────────┐
+      │                                    │
+  Core VPC / managemnt                         Protected Data VPC
+  
+ Only administrative traffic originates from the Recovery Access VPC.Business users never enter this VPC.
+ Benefits:
+ 1. Separate Trust Boundary
+  * Recovery administrators land here first.
+  * They do not land directly inside the application network.
+
+ 2. Better Segmentation
+  * You can inspect traffic before it reaches workloads.
+    
+ 3. Easier Auditing
+  * Everything starts here: VPN logs, CloudTrail , GuardDuty , Session Manager , Admin workstation and its one place to monitor
+
+ 4. Easier Expansion without modifying application VPCs.since we can add Security tooling , Forensics , SIEM collectors , Vulnerability scanners , Incident response tooling at later stages
+
+ 5. Zero Trust , Nobody can directly connect to: EC2 , DB , FSx , EFS Everything passes through the management layer
+
+ Note: AWS Security Reference Architecture promotes centralized management separated from workloads. IAM , Systems Manager , CloudTrail , Security Hub, GuardDuty , AWS Config, Client VPN, Session Manager all in a dedicated management/security boundary.
+
+ Our EA has  recommended reducing complexity from 5 to two VPCs because the original five-VPC design introduced too much operational overhead. We can plan to introduce a third VPC, since this is having a clear security purpose (administrator ingress)
+
+ Recovery Access VPC focused on administrator access.
+ Core Recovery VPC hosting identity, management, and application services.
+ Protected Data VPC containing sensitive databases and storage.
+
+You can inspect traffic before it reaches workloads.
+
+
+Keeping Option 2 in mind using Recovery Access VPC as an additional 3rd VPC
+
+<img width="1536" height="1024" alt="3VPCArchitecture" src="https://github.com/user-attachments/assets/5a2d8578-c22e-400d-a2fb-d3c65d3a3994" />
+
 ---
 
 # References
