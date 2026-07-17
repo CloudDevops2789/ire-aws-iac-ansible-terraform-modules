@@ -501,6 +501,20 @@ Keeping Option 2 in mind using Recovery Access VPC as an additional 3rd VPC
 
 <img width="1536" height="1024" alt="3VPCArchitecture" src="https://github.com/user-attachments/assets/5a2d8578-c22e-400d-a2fb-d3c65d3a3994" />
 
+Caveat: A Recovery Access VPC should be almost empty. Its job is simply to provide a secure administrative landing zone.
+
+It should contain only:
+AWS Client VPN Endpoint
+Session Manager
+Bastion (optional)
+CloudWatch agent/logging
+Interface VPC Endpoints required for management traffic
+
+Adding a third VPC means you can connect it directly to the Core VPC using VPC Peering.Technically we can but Architecturally it should not be done that way.
+
+<img width="1536" height="1024" alt="image" src="https://github.com/user-attachments/assets/318ab194-5491-4aa5-9463-6ff894ac54b2" />
+
+
 ---
 
 # References
