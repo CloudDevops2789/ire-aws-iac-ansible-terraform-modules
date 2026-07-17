@@ -512,7 +512,11 @@ Interface VPC Endpoints required for management traffic
 
 Adding a third VPC means you can connect it directly to the Core VPC using VPC Peering.Technically we can but Architecturally it should not be done that way.
 
-<img width="1536" height="1024" alt="image" src="https://github.com/user-attachments/assets/318ab194-5491-4aa5-9463-6ff894ac54b2" />
+
+
+On A high Level
+<img width="1536" height="1024" alt="image" src="https://github.com/user-attachments/assets/8295da6d-66eb-4c91-bd7a-6c5f97236c82" />
+
 
 
 ---
