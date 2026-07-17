@@ -513,8 +513,4 @@ Keeping Option 2 in mind using Recovery Access VPC as an additional 3rd VPC
 
 ---
 
-## License
 
-Internal Enterprise Architecture Documentation
-
-**Confidential – Fairview Health**
