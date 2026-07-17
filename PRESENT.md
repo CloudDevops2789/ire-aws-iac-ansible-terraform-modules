@@ -1,6 +1,6 @@
 Slide 1 – Problem Statement
 
-"Our objective was to design an AWS Isolated Recovery Environment (IRE) for Fairview that provides secure cyber recovery while remaining operationally simple, scalable, and 
+"Our objective was to design an AWS Isolated Recovery Environment (IRE) that provides secure cyber recovery while remaining operationally simple, scalable, and 
 aligned with AWS and healthcare security best practices."
 ----------
 Slide 2 – Architecture Evolution
