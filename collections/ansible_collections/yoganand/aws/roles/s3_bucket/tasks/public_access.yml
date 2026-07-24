@@ -1,0 +1,15 @@
+---
+- name: Block all public access
+  amazon.aws.s3_bucket:
+    name: "{{ bucket_name }}"
+    state: present
+    region: "{{ bucket_region }}"
+    public_access:
+      block_public_acls: true
+      block_public_policy: true
+      ignore_public_acls: true
+      restrict_public_buckets: true
+    access_key: "{{ aws_auth.access_key }}"
+    secret_key: "{{ aws_auth.secret_key }}"
+    session_token: "{{ aws_auth.session_token }}"
+  register: s3_public_access_result

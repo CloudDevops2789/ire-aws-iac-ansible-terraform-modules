@@ -1,0 +1,27 @@
+---
+namespace: yoganand
+name: aws
+version: 1.0.0
+readme: README.md
+
+authors:
+  - Yoganand
+
+description: >-
+  Ansible roles for provisioning the AWS Isolated Recovery Environment (IRE)
+  via Red Hat Ansible Automation Platform, using STS AssumeRole authentication.
+
+license:
+  - MIT-0
+
+tags:
+  - aws
+  - cloud
+  - infrastructure
+  - recovery
+
+dependencies:
+  amazon.aws: ">=10.0.0"
+  community.aws: ">=10.0.0"
+
+repository: https://github.com/CloudDevops2789/ire-aws-iac-ansible-terraform-modules

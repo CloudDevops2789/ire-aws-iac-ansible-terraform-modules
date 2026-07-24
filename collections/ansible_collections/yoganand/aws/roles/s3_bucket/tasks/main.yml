@@ -22,6 +22,12 @@
   ansible.builtin.include_tasks: encryption.yml
   when: bucket_state == "present"
 
+- name: Block public access
+  ansible.builtin.include_tasks: public_access.yml
+  when:
+    - bucket_state == "present"
+    - bucket_public_access_block
+
 - name: Apply enterprise tags
   ansible.builtin.include_tasks: tagging.yml
   when: bucket_state == "present"
@@ -29,7 +35,7 @@
 - name: Gather outputs
   ansible.builtin.include_tasks: outputs.yml
   when: bucket_state == "present"
-  
+
 - name: Destroy bucket
   ansible.builtin.include_tasks: destroy.yml
   when: bucket_state == "absent"

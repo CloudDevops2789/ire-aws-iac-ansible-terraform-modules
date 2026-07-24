@@ -1,0 +1,64 @@
+---
+name: CI
+
+"on":
+  push:
+    branches: [main, development]
+  pull_request:
+    branches: [development, main]
+
+permissions:
+  contents: read
+
+jobs:
+
+  ansible-lint:
+    name: Ansible / YAML lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install linters
+        run: pip install yamllint ansible-lint ansible-core
+
+      - name: yamllint
+        run: yamllint collections/ playbooks/ vars/*.yml
+
+      - name: ansible-lint
+        run: ansible-lint collections/ansible_collections/yoganand/aws playbooks/
+
+  terraform:
+    name: Terraform fmt + validate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.10.5"
+
+      - name: terraform fmt
+        run: terraform fmt -check -recursive terraform/
+
+      - name: terraform validate (sandbox)
+        working-directory: terraform/environments/sandbox
+        run: |
+          terraform init -backend=false -input=false
+          terraform validate
+
+  security-scan:
+    name: Checkov IaC scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run Checkov
+        uses: bridgecrewio/checkov-action@v12
+        with:
+          directory: terraform/
+          framework: terraform
+          soft_fail: ${{ github.base_ref != 'main' }}   # report-only until findings are triaged
