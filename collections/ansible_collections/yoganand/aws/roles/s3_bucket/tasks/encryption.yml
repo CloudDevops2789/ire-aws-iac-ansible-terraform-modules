@@ -1,0 +1,13 @@
+---
+- name: Configure default bucket encryption
+  amazon.aws.s3_bucket:
+    name: "{{ bucket_name }}"
+    state: present
+    region: "{{ bucket_region }}"
+    encryption: "{{ bucket_encryption }}"
+    encryption_key_id: "{{ bucket_kms_key_id if bucket_encryption == 'aws:kms' else omit }}"
+    bucket_key_enabled: "{{ true if bucket_encryption == 'aws:kms' else omit }}"
+    access_key: "{{ aws_auth.access_key }}"
+    secret_key: "{{ aws_auth.secret_key }}"
+    session_token: "{{ aws_auth.session_token }}"
+  register: s3_encryption_result

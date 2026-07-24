@@ -5,18 +5,23 @@
 
   tasks:
 
-    - name: Show AWS environment
+    - name: Show which AWS environment variables are set (names only, never values)
       ansible.builtin.shell: |
-        env | grep AWS || true
+        set -o pipefail
+        env | grep -o '^AWS[A-Z_]*' || true
+      args:
+        executable: /bin/bash
       register: aws_env
       changed_when: false
 
-    - debug:
+    - name: Display AWS variable names
+      ansible.builtin.debug:
         var: aws_env.stdout_lines
 
     - name: Get caller identity
       amazon.aws.aws_caller_info:
       register: caller
 
-    - debug:
-        var: caller
+    - name: Display caller identity
+      ansible.builtin.debug:
+        msg: "{{ caller.arn }} (account {{ caller.account }})"

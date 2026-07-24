@@ -7,9 +7,11 @@
     fail_msg: "role_arn and aws_region are required."
 
 - name: Build role session name
+  vars:
+    app_slug: "{{ (application_name | default('recovery') | lower | regex_replace('[^a-z0-9+=,.@-]', '-'))[:24] }}"
+    job_id: "{{ tower_job_id | default(awx_job_id | default('unknown')) }}"
   ansible.builtin.set_fact:
-    generated_role_session_name: >-
-      {{ (application_name | default('recovery') | lower | regex_replace('[^a-z0-9+=,.@-]', '-'))[:24] }}-job-{{ tower_job_id | default(awx_job_id | default('unknown')) }}-{{ lookup('pipe', 'date +%Y%m%d-%H%M%S') }}
+    generated_role_session_name: "{{ app_slug }}-job-{{ job_id }}-{{ lookup('pipe', 'date +%Y%m%d-%H%M%S') }}"
 
 - name: Assume AWS IAM role
   amazon.aws.sts_assume_role:
@@ -17,10 +19,7 @@
     role_session_name: "{{ generated_role_session_name }}"
   register: aws_assume_role_result
   changed_when: false
-
-- name: Show AssumeRole result
-  ansible.builtin.debug:
-    var: aws_assume_role_result
+  no_log: true
 
 - name: Validate response
   ansible.builtin.assert:
@@ -30,6 +29,7 @@
       - aws_assume_role_result.sts_creds.secret_key is defined
       - aws_assume_role_result.sts_creds.session_token is defined
       - aws_assume_role_result.sts_user.arn is defined
+    quiet: true
 
 - name: Store credentials
   ansible.builtin.set_fact:
@@ -43,6 +43,7 @@
       secret_key: "{{ aws_assume_role_result.sts_creds.secret_key }}"
       session_token: "{{ aws_assume_role_result.sts_creds.session_token }}"
       region: "{{ aws_region }}"
+  no_log: true
 
 - name: Verify assumed role
   amazon.aws.aws_caller_info:
@@ -55,4 +56,4 @@
 
 - name: Display assumed role
   ansible.builtin.debug:
-    msg: "Successfully assumed {{ caller_identity.arn }}"
+    msg: "Successfully assumed {{ caller_identity.arn }} (expires {{ aws_role_expiration }})"

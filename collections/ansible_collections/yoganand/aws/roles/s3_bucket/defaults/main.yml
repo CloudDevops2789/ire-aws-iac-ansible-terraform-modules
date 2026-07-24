@@ -11,14 +11,21 @@ bucket_state: present
 
 bucket_versioning: true
 
+# Object Lock (immutability). Must be enabled at bucket creation.
 bucket_object_lock: true
+bucket_object_lock_mode: "GOVERNANCE"   # GOVERNANCE | COMPLIANCE
+bucket_object_lock_retention_days: 30
 
 bucket_force_destroy: false
 
-bucket_encryption: AES256
-
+bucket_encryption: AES256               # AES256 | aws:kms
 bucket_kms_key_id: ""
 
 bucket_public_access_block: true
+
+# Enterprise default tags, merged with bucket_tags (bucket_tags wins)
+bucket_default_tags:
+  ManagedBy: "Ansible"
+  Project: "AWS-IRE"
 
 bucket_tags: {}

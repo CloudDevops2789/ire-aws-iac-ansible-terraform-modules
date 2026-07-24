@@ -1,0 +1,14 @@
+---
+- name: Publish bucket outputs
+  ansible.builtin.set_fact:
+    s3_bucket_outputs:
+      name: "{{ bucket_name }}"
+      arn: "arn:aws:s3:::{{ bucket_name }}"
+      region: "{{ bucket_region }}"
+      versioning: "{{ bucket_versioning }}"
+      object_lock: "{{ bucket_object_lock }}"
+      encryption: "{{ bucket_encryption }}"
+
+- name: Display bucket summary
+  ansible.builtin.debug:
+    var: s3_bucket_outputs

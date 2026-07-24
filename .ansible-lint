@@ -1,0 +1,9 @@
+---
+profile: basic
+
+exclude_paths:
+  - .git/
+  - vars/
+  - terraform/
+  - docs/
+  - scripts/
