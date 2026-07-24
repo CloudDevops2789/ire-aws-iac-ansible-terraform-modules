@@ -87,7 +87,7 @@ module "recovery_access" {
 
   source = "../../modules/vpc"
 
-  name = "landing-zone"
+  name = "recovery-access"
 
   cidr = "10.100.0.0/16"
 

@@ -17,7 +17,7 @@ module "recovery_access" {
 
   source = "../../modules/vpc"
 
-  vpc_name                = "landing-zone"
+  vpc_name                = "recovery-access"
   cidr_block              = "10.100.0.0/16"
   availability_zone_count = 2
 
@@ -30,7 +30,18 @@ module "recovery_access" {
     private-a = "10.100.11.0/24"
     private-b = "10.100.12.0/24"
   }
+  # Install routes in the private route table for networks reachable via
+  # the Transit Gateway. Under the IRE trust model, the Recovery Access VPC
+  # communicates only with the Core Recovery VPC.
+  transit_gateway_routes = [
 
+    {
+      destination_cidr_block = module.core_recovery.vpc_cidr
+
+      transit_gateway_id = module.transit_gateway.id
+    }
+
+  ]
 }
 
 ############################################
@@ -53,6 +64,23 @@ module "core_recovery" {
     private-b = "10.101.12.0/24"
   }
 
+  # Core Recovery acts as the central routing domain within the IRE. It
+  # requires routes to both the Recovery Access and Protected Data VPCs.
+  transit_gateway_routes = [
+
+    {
+      destination_cidr_block = module.recovery_access.vpc_cidr
+
+      transit_gateway_id = module.transit_gateway.id
+    },
+
+    {
+      destination_cidr_block = module.protected_data.vpc_cidr
+
+      transit_gateway_id = module.transit_gateway.id
+    }
+
+  ]
 }
 
 ############################################
@@ -74,6 +102,18 @@ module "protected_data" {
     private-b = "10.102.12.0/24"
   }
 
+  # Install routes for the Core Recovery VPC only. Direct routing to the
+  # Recovery Access VPC is intentionally omitted to enforce the IRE trust
+  # model.
+  transit_gateway_routes = [
+
+    {
+      destination_cidr_block = module.core_recovery.vpc_cidr
+
+      transit_gateway_id = module.transit_gateway.id
+    }
+
+  ]
 }
 
 ############################################
