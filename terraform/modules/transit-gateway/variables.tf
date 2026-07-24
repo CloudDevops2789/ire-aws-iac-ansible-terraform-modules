@@ -63,10 +63,34 @@ variable "vpc_attachments" {
     vpc_id     = string
     subnet_ids = list(string)
 
+    # Transit Gateway route table this attachment should associate with.
+    # The value must match a key defined in `var.route_tables`.
+    route_table = string
+
+    # Transit Gateway route tables this attachment should propagate into.
+    # Values must match keys defined in `var.route_tables`.
+    propagate_to = list(string)
+
     dns_support            = optional(string, "enable")
     ipv6_support           = optional(string, "disable")
     appliance_mode_support = optional(string, "disable")
 
+    tags = optional(map(string), {})
+  }))
+
+  default = {}
+}
+
+# Transit Gateway route tables to create.
+# The map key is an internal identifier while `name` becomes
+# the friendly name shown in the AWS Console.
+variable "route_tables" {
+  description = "Transit Gateway route tables"
+
+  type = map(object({
+    name = string
+
+    # Optional tags specific to this route table.
     tags = optional(map(string), {})
   }))
 

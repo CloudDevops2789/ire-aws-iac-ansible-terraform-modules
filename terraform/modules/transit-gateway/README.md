@@ -60,8 +60,8 @@ module "transit_gateway" {
   vpc_attachments = {
 
     landing = {
-      vpc_id     = module.landing_zone.vpc_id
-      subnet_ids = module.landing_zone.private_subnet_ids
+      vpc_id     = module.recovery_access.vpc_id
+      subnet_ids = module.recovery_access.private_subnet_ids
     }
 
     recovery = {

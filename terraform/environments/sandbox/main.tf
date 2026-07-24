@@ -13,7 +13,7 @@
 # independent - each gets its own state entries.
 # This VPC is the entry point where administrators land before reaching
 # recovery workloads. It is the only VPC with public subnets (sandbox-only).
-module "landing_zone" {
+module "recovery_access" {
 
   source = "../../modules/vpc"
 
@@ -81,7 +81,7 @@ module "protected_data" {
 ############################################
 
 # The Transit Gateway is the central router connecting all three VPCs.
-# The references like `module.landing_zone.vpc_id` read OUTPUTS of the vpc
+# The references like `module.recovery_access.vpc_id` read OUTPUTS of the vpc
 # module instances above. These references are also how Terraform builds its
 # dependency graph: it knows the VPCs must exist before the TGW attachments.
 module "transit_gateway" {
@@ -90,29 +90,67 @@ module "transit_gateway" {
 
   name = "ire-transit-gateway"
 
+
+  # Transit Gateway route tables representing the routing domains within
+  # the recovery environment. Attachments associate with these route tables
+  # and propagate routes according to the configured trust model.
+  route_tables = {
+
+    recovery_access = {
+      name = "Recovery Access"
+    }
+
+    core_recovery = {
+      name = "Core Recovery"
+    }
+
+    protected_data = {
+      name = "Protected Data"
+    }
+
+  }
+
   # A map(object) input: one entry per VPC to attach. Inside the module this map
-  # is iterated with for_each, so each key (landing_zone, core_recovery, ...)
+  # is iterated with for_each, so each key (recovery_access, core_recovery, ...)
   # becomes a stable resource address like
-  # aws_ec2_transit_gateway_vpc_attachment.this["landing_zone"].
+  # aws_ec2_transit_gateway_vpc_attachment.this["recovery_access"].
   # Attachments are placed in the PRIVATE subnets - the TGW creates a network
   # interface in each subnet you list.
   vpc_attachments = {
 
-    landing_zone = {
-      vpc_id     = module.landing_zone.vpc_id
-      subnet_ids = module.landing_zone.private_subnet_ids
+    recovery_access = {
+      vpc_id     = module.recovery_access.vpc_id
+      subnet_ids = module.recovery_access.private_subnet_ids
+
+      route_table = "recovery_access"
+
+      propagate_to = [
+        "core_recovery"
+      ]
     }
 
     core_recovery = {
       vpc_id     = module.core_recovery.vpc_id
       subnet_ids = module.core_recovery.private_subnet_ids
+
+      route_table = "core_recovery"
+
+      propagate_to = [
+        "recovery_access",
+        "protected_data"
+      ]
     }
 
     protected_data = {
       vpc_id     = module.protected_data.vpc_id
       subnet_ids = module.protected_data.private_subnet_ids
-    }
 
+      route_table = "protected_data"
+
+      propagate_to = [
+        "core_recovery"
+      ]
+    }
   }
 
   # Merged onto the TGW resources by the module (see its locals.tf). These are

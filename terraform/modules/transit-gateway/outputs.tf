@@ -21,3 +21,15 @@ output "propagation_default_route_table_id" {
   description = "Default propagation route table"
   value       = aws_ec2_transit_gateway.this.propagation_default_route_table_id
 }
+
+# Transit Gateway route table IDs keyed by the identifiers defined
+# in `var.route_tables`. These IDs are used when creating route
+# table associations, propagations and static routes.
+output "route_table_ids" {
+  description = "Transit Gateway route table IDs"
+
+  value = {
+    for key, route_table in aws_ec2_transit_gateway_route_table.this :
+    key => route_table.id
+  }
+}

@@ -83,7 +83,7 @@ Current environments use this module to provision:
 ## Example
 
 ```hcl
-module "landing_zone" {
+module "recovery_access" {
 
   source = "../../modules/vpc"
 
