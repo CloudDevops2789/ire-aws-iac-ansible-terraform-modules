@@ -61,13 +61,7 @@ module "protected_data" {
 }
 
 ############################################
-# Transit Gateway — segmented routing
-#
-# Isolation model (until the inspection VPC
-# is added):
-#   - landing zone reaches core + protected
-#   - core and protected reach landing only
-#   - core <-> protected is blackholed
+# Transit Gateway
 ############################################
 
 module "transit_gateway" {
@@ -76,48 +70,23 @@ module "transit_gateway" {
 
   name = "ire-transit-gateway"
 
-  route_tables = ["landing", "core", "protected"]
-
   vpc_attachments = {
 
     landing_zone = {
-      vpc_id      = module.landing_zone.vpc_id
-      subnet_ids  = module.landing_zone.private_subnet_ids
-      route_table = "landing"
+      vpc_id     = module.landing_zone.vpc_id
+      subnet_ids = module.landing_zone.private_subnet_ids
     }
 
     core_recovery = {
-      vpc_id      = module.core_recovery.vpc_id
-      subnet_ids  = module.core_recovery.private_subnet_ids
-      route_table = "core"
+      vpc_id     = module.core_recovery.vpc_id
+      subnet_ids = module.core_recovery.private_subnet_ids
     }
 
     protected_data = {
-      vpc_id      = module.protected_data.vpc_id
-      subnet_ids  = module.protected_data.private_subnet_ids
-      route_table = "protected"
+      vpc_id     = module.protected_data.vpc_id
+      subnet_ids = module.protected_data.private_subnet_ids
     }
 
-  }
-
-  propagations = {
-    landing_to_core      = { route_table = "core", attachment = "landing_zone" }
-    landing_to_protected = { route_table = "protected", attachment = "landing_zone" }
-    core_to_landing      = { route_table = "landing", attachment = "core_recovery" }
-    protected_to_landing = { route_table = "landing", attachment = "protected_data" }
-  }
-
-  static_routes = {
-    core_deny_protected = {
-      route_table            = "core"
-      destination_cidr_block = "10.102.0.0/16"
-      blackhole              = true
-    }
-    protected_deny_core = {
-      route_table            = "protected"
-      destination_cidr_block = "10.101.0.0/16"
-      blackhole              = true
-    }
   }
 
   tags = {
@@ -128,32 +97,4 @@ module "transit_gateway" {
     Owner       = "CloudEngineering"
   }
 
-}
-
-############################################
-# VPC routes toward the Transit Gateway
-############################################
-
-resource "aws_route" "landing_to_core" {
-  route_table_id         = module.landing_zone.private_route_table_id
-  destination_cidr_block = module.core_recovery.vpc_cidr
-  transit_gateway_id     = module.transit_gateway.id
-}
-
-resource "aws_route" "landing_to_protected" {
-  route_table_id         = module.landing_zone.private_route_table_id
-  destination_cidr_block = module.protected_data.vpc_cidr
-  transit_gateway_id     = module.transit_gateway.id
-}
-
-resource "aws_route" "core_to_landing" {
-  route_table_id         = module.core_recovery.private_route_table_id
-  destination_cidr_block = module.landing_zone.vpc_cidr
-  transit_gateway_id     = module.transit_gateway.id
-}
-
-resource "aws_route" "protected_to_landing" {
-  route_table_id         = module.protected_data.private_route_table_id
-  destination_cidr_block = module.landing_zone.vpc_cidr
-  transit_gateway_id     = module.transit_gateway.id
 }
