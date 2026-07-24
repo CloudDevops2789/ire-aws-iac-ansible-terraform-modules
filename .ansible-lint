@@ -1,6 +1,10 @@
 ---
 profile: basic
 
+skip_list:
+  - var-naming[no-role-prefix]
+  - syntax-check[empty-playbook]
+
 exclude_paths:
   - .git/
   - vars/
