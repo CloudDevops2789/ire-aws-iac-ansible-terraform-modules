@@ -8,9 +8,9 @@ resource "aws_ec2_transit_gateway_vpc_attachment" "this" {
 
   subnet_ids = each.value.subnet_ids
 
-  dns_support             = each.value.dns_support
-  ipv6_support            = each.value.ipv6_support
-  appliance_mode_support  = each.value.appliance_mode_support
+  dns_support            = each.value.dns_support
+  ipv6_support           = each.value.ipv6_support
+  appliance_mode_support = each.value.appliance_mode_support
 
   tags = merge(
     local.tags,
