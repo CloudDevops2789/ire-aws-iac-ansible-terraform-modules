@@ -1,4 +1,6 @@
 ---
+# Versioning keeps every object revision. It is also a prerequisite for
+# Object Lock - locks apply to object VERSIONS.
 - name: Enable S3 bucket versioning
   amazon.aws.s3_bucket:
     name: "{{ bucket_name }}"

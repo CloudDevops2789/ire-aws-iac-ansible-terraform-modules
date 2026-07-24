@@ -1,7 +1,14 @@
 ---
+# DISPATCHER pattern: main.yml holds no real work, only the order of
+# operations. Each step lives in its own small file pulled in with
+# include_tasks (a DYNAMIC include - evaluated at runtime, so its `when`
+# is checked once for the whole file; if false, the file is skipped
+# entirely). This keeps every concern separately readable and testable.
 - name: Validate input
   ansible.builtin.include_tasks: validate.yml
 
+# bucket_state works like Terraform's create/destroy switch: 'present'
+# runs the configure chain below, 'absent' jumps to destroy.yml.
 - name: Create or update bucket
   ansible.builtin.include_tasks: create.yml
   when: bucket_state == "present"
@@ -12,6 +19,7 @@
     - bucket_state == "present"
     - bucket_versioning
 
+# Multi-condition `when`: a list means all conditions AND together.
 - name: Configure object lock
   ansible.builtin.include_tasks: object_lock.yml
   when:

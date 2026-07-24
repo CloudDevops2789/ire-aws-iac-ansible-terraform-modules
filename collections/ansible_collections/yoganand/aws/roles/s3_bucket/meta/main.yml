@@ -1,4 +1,5 @@
 ---
+# Role metadata for Galaxy/AAP; no dependent roles.
 galaxy_info:
   author: Yoganand
   description: Enterprise reusable S3 bucket role

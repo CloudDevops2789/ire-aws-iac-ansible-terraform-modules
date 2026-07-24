@@ -1,8 +1,13 @@
+# Module inputs. Only `name` is required (no default); everything else
+# has sensible defaults so a minimal call is just name + attachments.
 variable "name" {
   description = "Transit Gateway name"
   type        = string
 }
 
+# BGP Autonomous System Number for the AWS side - only matters once
+# VPN/Direct Connect attachments join. 64512 is the start of the private
+# ASN range and the AWS default.
 variable "amazon_side_asn" {
   description = "Amazon side ASN"
   type        = number
@@ -45,6 +50,12 @@ variable "tags" {
   default     = {}
 }
 
+# A map(object) - the richest kind of type constraint. Each entry
+# describes one VPC attachment with a fixed schema.
+# optional(type, default) inside an object means the caller may omit that
+# attribute and Terraform fills the default - this is how the sandbox can
+# pass only vpc_id + subnet_ids while the module still reads
+# each.value.dns_support safely.
 variable "vpc_attachments" {
   description = "Transit Gateway VPC attachments"
 

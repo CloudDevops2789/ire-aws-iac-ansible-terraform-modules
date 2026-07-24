@@ -1,10 +1,16 @@
 ---
+# Diagnostic playbook: answers 'which AWS identity does this controller
+# currently have?' - the first thing to check when auth misbehaves.
 - name: Test AWS Credentials
   hosts: localhost
   gather_facts: false
 
   tasks:
 
+    # shell (not command) because we need a pipeline. pipefail makes the
+    # pipeline fail if grep's INPUT stage fails, not just the last command.
+    # grep -o prints only the matching variable NAMES - deliberately never
+    # the values, since AWS_SECRET_ACCESS_KEY may be among them.
     - name: Show which AWS environment variables are set (names only, never values)
       ansible.builtin.shell: |
         set -o pipefail
@@ -18,6 +24,8 @@
       ansible.builtin.debug:
         var: aws_env.stdout_lines
 
+    # No explicit credentials passed - the module uses whatever the
+    # environment provides, which is exactly what we're testing.
     - name: Get caller identity
       amazon.aws.aws_caller_info:
       register: caller

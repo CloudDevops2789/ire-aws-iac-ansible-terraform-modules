@@ -1,4 +1,9 @@
 ---
+# Teardown path, reached only when bucket_state == 'absent'. `force`
+# empties the bucket first (S3 refuses to delete non-empty buckets);
+# gated behind bucket_force_destroy so accidental data loss requires two
+# deliberate flags. Note: Object-Locked versions still under retention
+# cannot be force-deleted - by design.
 - name: Destroy S3 bucket
   amazon.aws.s3_bucket:
     name: "{{ bucket_name }}"

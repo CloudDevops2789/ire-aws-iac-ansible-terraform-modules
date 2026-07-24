@@ -1,4 +1,8 @@
 ---
+# Standalone smoke test for the assume_role role - proves the IAM
+# user->role trust works before wiring it into real provisioning.
+# connection: local makes 'localhost' explicit (no SSH involved).
+# The vars here override the role's defaults (see variable precedence).
 - name: Test Assume Role
   hosts: localhost
   connection: local

@@ -1,4 +1,8 @@
 ---
+# ROLE DEFAULTS: the lowest-precedence variables in Ansible. Anything set
+# here is overridden by play vars, extra vars, inventory, etc. - which is
+# why defaults are the right home for 'safe placeholders the caller is
+# expected to override' (like role_arn below).
 # Bootstrap IAM role
 
 role_arn: ""

@@ -1,5 +1,10 @@
 
 
+# CONDITIONAL RESOURCE: `count = condition ? 1 : 0` is the idiom for
+# creating a resource only sometimes. If the caller passes no public
+# subnets, has_public_subnets is false, count is 0, and no IGW exists -
+# which is exactly what the IRE design wants for the isolated VPCs.
+# A counted resource is a LIST, so later references need an index: this[0].
 resource "aws_internet_gateway" "this" {
 
   count = local.has_public_subnets ? 1 : 0
@@ -14,6 +19,8 @@ resource "aws_internet_gateway" "this" {
   )
 }
 
+# Route table for the public tier - also conditional, created only
+# alongside the IGW.
 resource "aws_route_table" "public" {
 
   count = local.has_public_subnets ? 1 : 0
@@ -28,6 +35,10 @@ resource "aws_route_table" "public" {
   )
 }
 
+# The default route ("catch-all" 0.0.0.0/0) pointing at the IGW is what
+# actually makes the public route table public. Defined as a separate
+# aws_route resource rather than an inline route block so it can carry its
+# own count condition.
 resource "aws_route" "public_default" {
 
   count = local.has_public_subnets ? 1 : 0
@@ -39,6 +50,9 @@ resource "aws_route" "public_default" {
   gateway_id = aws_internet_gateway.this[0].id
 }
 
+# Associations bind subnets to a route table. for_each iterates directly
+# over the aws_subnet.public RESOURCE (itself a map because it used
+# for_each), so each subnet gets an association keyed by the same name.
 resource "aws_route_table_association" "public" {
 
   for_each = aws_subnet.public
@@ -50,6 +64,10 @@ resource "aws_route_table_association" "public" {
 }
 
 
+# Single shared route table for all private subnets (no count - it always
+# exists). It has no 0.0.0.0/0 route at all, so private subnets have no
+# internet path. Routes toward the Transit Gateway get added here later
+# when inter-VPC traffic is enabled.
 resource "aws_route_table" "private" {
 
   vpc_id = aws_vpc.this.id

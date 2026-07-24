@@ -1,4 +1,7 @@
 ---
+# combine() merges dicts, right side winning - org-wide defaults first,
+# caller's bucket_tags override. purge_tags: false = additive only; tags
+# added outside this role are left alone rather than deleted.
 - name: Apply enterprise tags
   amazon.aws.s3_bucket:
     name: "{{ bucket_name }}"

@@ -1,4 +1,8 @@
 ---
+# The four-switch Public Access Block - belt-and-braces guarantee that no
+# ACL or bucket policy can ever expose this bucket publicly. For a
+# recovery vault there is no legitimate public access, so all four are
+# hard-set true.
 - name: Block all public access
   amazon.aws.s3_bucket:
     name: "{{ bucket_name }}"

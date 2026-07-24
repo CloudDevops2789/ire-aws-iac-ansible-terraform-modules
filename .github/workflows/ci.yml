@@ -1,4 +1,7 @@
 ---
+# GitHub Actions pipeline. Runs automatically on pushes to
+# main/development and on pull requests targeting them - the quality gate
+# in the feature -> development -> main flow.
 name: CI
 
 "on":
@@ -12,6 +15,9 @@ permissions:
 
 jobs:
 
+  # Jobs run in PARALLEL on separate runners unless linked with `needs`.
+  # This one lints YAML style (yamllint) and Ansible best practices
+  # (ansible-lint, tuned by the repo's .ansible-lint config).
   ansible-lint:
     name: Ansible / YAML lint
     runs-on: ubuntu-latest
@@ -31,6 +37,9 @@ jobs:
       - name: ansible-lint
         run: ansible-lint collections/ansible_collections/yoganand/aws playbooks/
 
+  # fmt -check fails on unformatted code (fix locally with `terraform fmt
+  # -recursive`). validate checks internal consistency; -backend=false
+  # skips S3 state entirely - no AWS credentials needed in CI for this.
   terraform:
     name: Terraform fmt + validate
     runs-on: ubuntu-latest
@@ -50,6 +59,10 @@ jobs:
           terraform init -backend=false -input=false
           terraform validate
 
+  # Checkov scans the Terraform for security misconfigurations (public
+  # IPs, missing flow logs, open SGs...). soft_fail: true = findings are
+  # reported but never block the merge - advisory mode while the repo is
+  # under construction. Flip to false to make it a hard release gate.
   security-scan:
     name: Checkov IaC scan
     runs-on: ubuntu-latest

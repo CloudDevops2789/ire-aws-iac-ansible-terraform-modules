@@ -1,2 +1,4 @@
 ---
+# Minimum ansible-core this collection supports; older controllers refuse
+# to load it rather than failing mysteriously mid-run.
 requires_ansible: ">=2.15.0"

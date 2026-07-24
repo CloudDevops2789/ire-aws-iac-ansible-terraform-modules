@@ -1,4 +1,8 @@
 ---
+# LOCAL hooks that run on `git commit`, before code ever reaches CI.
+# One-time setup: pip install pre-commit && pre-commit install.
+# detect-aws-credentials / detect-private-key are the important ones
+# here - they stop secrets from entering git history at the source.
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v5.0.0

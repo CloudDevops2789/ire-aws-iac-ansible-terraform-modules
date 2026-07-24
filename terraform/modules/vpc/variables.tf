@@ -1,3 +1,7 @@
+# Module INPUTS. Variables without a `default` (like this one) are
+# required - Terraform errors if the caller omits them. Variables with a
+# default are optional. `type` constraints catch wrong-shaped input at
+# plan time instead of at AWS API time.
 variable "vpc_name" {
   description = "Name of the VPC"
   type        = string
@@ -14,12 +18,18 @@ variable "availability_zone_count" {
   type    = number
   default = 2
 
+  # VALIDATION BLOCK: a custom plan-time rule. `condition` must evaluate to
+  # true or the plan fails with error_message. Cheap insurance for
+  # assumptions the type system can't express (here: minimum HA of 2 AZs).
   validation {
     condition     = var.availability_zone_count >= 2
     error_message = "At least two Availability Zones are recommended."
   }
 }
 
+# Maps of name -> CIDR, e.g. { public-a = "10.0.1.0/24" }. Defaulting to
+# {} makes the whole public tier optional: an empty map means for_each
+# creates nothing and the conditional IGW logic switches off.
 variable "public_subnets" {
   description = "Map of public subnet CIDRs"
 
@@ -28,6 +38,8 @@ variable "public_subnets" {
   default = {}
 }
 
+# No default here plus a validation requiring at least one entry: every
+# VPC in this design must have a private tier.
 variable "private_subnets" {
   description = "Map of private subnet CIDRs"
 

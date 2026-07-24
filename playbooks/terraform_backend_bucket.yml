@@ -1,4 +1,10 @@
 ---
+# BOOTSTRAP playbook solving the chicken-and-egg problem: Terraform wants
+# to store its state in S3, but something has to create that bucket
+# before Terraform can run. Ansible does it once, with Object Lock +
+# versioning so even the state history is immutable.
+# hosts: localhost + gather_facts: false = run on the controller only,
+# skip the fact-gathering step (pure API calls, no target servers).
 - name: Create Terraform Backend Bucket
   hosts: localhost
   gather_facts: false
@@ -19,6 +25,8 @@
 
     bucket_versioning: true
 
+  # Roles execute in order: assume_role publishes the aws_auth fact,
+  # s3_bucket consumes it. Order matters.
   roles:
 
     - yoganand.aws.assume_role

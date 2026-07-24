@@ -1,4 +1,10 @@
 ---
+# amazon.aws.s3_bucket is IDEMPOTENT: it creates the bucket if missing,
+# otherwise reconciles settings - safe to re-run.
+# object_lock_enabled must be set HERE at creation: AWS cannot enable
+# Object Lock on an existing bucket.
+# The access_key/secret_key/session_token come from the aws_auth fact the
+# assume_role role published - this is what ties the two roles together.
 - name: Create S3 bucket
   amazon.aws.s3_bucket:
     name: "{{ bucket_name }}"

@@ -1,4 +1,7 @@
 ---
+# Enabling the lock flag alone protects nothing by default - this default
+# retention (mode + days) is what automatically WORM-protects every new
+# object version without the writer having to request it per object.
 - name: Configure Object Lock default retention
   amazon.aws.s3_bucket:
     name: "{{ bucket_name }}"
